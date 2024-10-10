@@ -26,6 +26,47 @@ struct AppConfig: Codable {
     mutating func removeCustomField(key: String) {
         customFields?.removeAll { $0.keys.contains(key) }
     }
+        
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(appVersion, forKey: .appVersion)
+        try container.encode(apiRootURL, forKey: .apiRootURL)
+        try container.encode(apiVersion, forKey: .apiVersion)
+        try container.encode(customButton, forKey: .customButton)
+                
+        if let customFields = customFields {
+            var customFieldsContainer = container.nestedUnkeyedContainer(forKey: .customFields)
+            for field in customFields {
+                let sortedField = field.sorted { $0.key < $1.key }
+                var fieldContainer = customFieldsContainer.nestedContainer(keyedBy: DynamicKey.self)
+                for (key, value) in sortedField {
+                    try fieldContainer.encode(value, forKey: DynamicKey(stringValue: key)!)
+                }
+            }
+        }
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case appVersion
+        case apiRootURL
+        case apiVersion
+        case customButton
+        case customFields
+    }
+    
+    struct DynamicKey: CodingKey {
+        var stringValue: String
+        var intValue: Int? { return nil }
+        
+        init?(intValue: Int) {
+            return nil
+        }
+        
+        init?(stringValue: String) {
+            self.stringValue = stringValue
+        }
+    }
 }
 
 struct AnyCodable: Codable {

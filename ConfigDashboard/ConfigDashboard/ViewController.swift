@@ -12,10 +12,10 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        testConfigDashboard()
+        uploadtestConfig()
     }
-
-    func testConfigDashboard() {
+    
+    func uploadtestConfig() {
         
         var config = AppConfig()
         config.appVersion = "2.1"
