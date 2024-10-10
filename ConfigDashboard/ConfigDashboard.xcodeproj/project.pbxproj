@@ -7,32 +7,32 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		5C3BE5FF2CB6F10E00CDD7ED /* RemoteConfig.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RemoteConfig.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5CFF9ECB2CB6F266002D2C1C /* ConfigDashboard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ConfigDashboard.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		5C3BE6112CB6F10F00CDD7ED /* Exceptions for "RemoteConfig" folder in "RemoteConfig" target */ = {
+		5CFF9EDD2CB6F267002D2C1C /* Exceptions for "ConfigDashboard" folder in "ConfigDashboard" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 5C3BE5FE2CB6F10E00CDD7ED /* RemoteConfig */;
+			target = 5CFF9ECA2CB6F266002D2C1C /* ConfigDashboard */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		5C3BE6012CB6F10E00CDD7ED /* RemoteConfig */ = {
+		5CFF9ECD2CB6F266002D2C1C /* ConfigDashboard */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				5C3BE6112CB6F10F00CDD7ED /* Exceptions for "RemoteConfig" folder in "RemoteConfig" target */,
+				5CFF9EDD2CB6F267002D2C1C /* Exceptions for "ConfigDashboard" folder in "ConfigDashboard" target */,
 			);
-			path = RemoteConfig;
+			path = ConfigDashboard;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		5C3BE5FC2CB6F10E00CDD7ED /* Frameworks */ = {
+		5CFF9EC82CB6F266002D2C1C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -42,18 +42,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		5C3BE5F62CB6F10E00CDD7ED = {
+		5CFF9EC22CB6F266002D2C1C = {
 			isa = PBXGroup;
 			children = (
-				5C3BE6012CB6F10E00CDD7ED /* RemoteConfig */,
-				5C3BE6002CB6F10E00CDD7ED /* Products */,
+				5CFF9ECD2CB6F266002D2C1C /* ConfigDashboard */,
+				5CFF9ECC2CB6F266002D2C1C /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		5C3BE6002CB6F10E00CDD7ED /* Products */ = {
+		5CFF9ECC2CB6F266002D2C1C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				5C3BE5FF2CB6F10E00CDD7ED /* RemoteConfig.app */,
+				5CFF9ECB2CB6F266002D2C1C /* ConfigDashboard.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -61,64 +61,64 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		5C3BE5FE2CB6F10E00CDD7ED /* RemoteConfig */ = {
+		5CFF9ECA2CB6F266002D2C1C /* ConfigDashboard */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5C3BE6122CB6F10F00CDD7ED /* Build configuration list for PBXNativeTarget "RemoteConfig" */;
+			buildConfigurationList = 5CFF9EDE2CB6F267002D2C1C /* Build configuration list for PBXNativeTarget "ConfigDashboard" */;
 			buildPhases = (
-				5C3BE5FB2CB6F10E00CDD7ED /* Sources */,
-				5C3BE5FC2CB6F10E00CDD7ED /* Frameworks */,
-				5C3BE5FD2CB6F10E00CDD7ED /* Resources */,
+				5CFF9EC72CB6F266002D2C1C /* Sources */,
+				5CFF9EC82CB6F266002D2C1C /* Frameworks */,
+				5CFF9EC92CB6F266002D2C1C /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				5C3BE6012CB6F10E00CDD7ED /* RemoteConfig */,
+				5CFF9ECD2CB6F266002D2C1C /* ConfigDashboard */,
 			);
-			name = RemoteConfig;
+			name = ConfigDashboard;
 			packageProductDependencies = (
 			);
-			productName = RemoteConfig;
-			productReference = 5C3BE5FF2CB6F10E00CDD7ED /* RemoteConfig.app */;
+			productName = ConfigDashboard;
+			productReference = 5CFF9ECB2CB6F266002D2C1C /* ConfigDashboard.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		5C3BE5F72CB6F10E00CDD7ED /* Project object */ = {
+		5CFF9EC32CB6F266002D2C1C /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
-					5C3BE5FE2CB6F10E00CDD7ED = {
+					5CFF9ECA2CB6F266002D2C1C = {
 						CreatedOnToolsVersion = 16.0;
 					};
 				};
 			};
-			buildConfigurationList = 5C3BE5FA2CB6F10E00CDD7ED /* Build configuration list for PBXProject "RemoteConfig" */;
+			buildConfigurationList = 5CFF9EC62CB6F266002D2C1C /* Build configuration list for PBXProject "ConfigDashboard" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 5C3BE5F62CB6F10E00CDD7ED;
+			mainGroup = 5CFF9EC22CB6F266002D2C1C;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 5C3BE6002CB6F10E00CDD7ED /* Products */;
+			productRefGroup = 5CFF9ECC2CB6F266002D2C1C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				5C3BE5FE2CB6F10E00CDD7ED /* RemoteConfig */,
+				5CFF9ECA2CB6F266002D2C1C /* ConfigDashboard */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		5C3BE5FD2CB6F10E00CDD7ED /* Resources */ = {
+		5CFF9EC92CB6F266002D2C1C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -128,7 +128,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		5C3BE5FB2CB6F10E00CDD7ED /* Sources */ = {
+		5CFF9EC72CB6F266002D2C1C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -138,7 +138,7 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		5C3BE6132CB6F10F00CDD7ED /* Debug */ = {
+		5CFF9EDF2CB6F267002D2C1C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -147,7 +147,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = TS4RX6E9KD;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = RemoteConfig/Info.plist;
+				INFOPLIST_FILE = ConfigDashboard/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -158,15 +158,19 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.alok.RemoteConfig;
+				PRODUCT_BUNDLE_IDENTIFIER = com.alok.ConfigDashboard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
-		5C3BE6142CB6F10F00CDD7ED /* Release */ = {
+		5CFF9EE02CB6F267002D2C1C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -175,7 +179,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = TS4RX6E9KD;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = RemoteConfig/Info.plist;
+				INFOPLIST_FILE = ConfigDashboard/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -186,15 +190,19 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.alok.RemoteConfig;
+				PRODUCT_BUNDLE_IDENTIFIER = com.alok.ConfigDashboard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
-		5C3BE6152CB6F10F00CDD7ED /* Debug */ = {
+		5CFF9EE12CB6F267002D2C1C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -257,7 +265,7 @@
 			};
 			name = Debug;
 		};
-		5C3BE6162CB6F10F00CDD7ED /* Release */ = {
+		5CFF9EE22CB6F267002D2C1C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -316,25 +324,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		5C3BE5FA2CB6F10E00CDD7ED /* Build configuration list for PBXProject "RemoteConfig" */ = {
+		5CFF9EC62CB6F266002D2C1C /* Build configuration list for PBXProject "ConfigDashboard" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				5C3BE6152CB6F10F00CDD7ED /* Debug */,
-				5C3BE6162CB6F10F00CDD7ED /* Release */,
+				5CFF9EE12CB6F267002D2C1C /* Debug */,
+				5CFF9EE22CB6F267002D2C1C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5C3BE6122CB6F10F00CDD7ED /* Build configuration list for PBXNativeTarget "RemoteConfig" */ = {
+		5CFF9EDE2CB6F267002D2C1C /* Build configuration list for PBXNativeTarget "ConfigDashboard" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				5C3BE6132CB6F10F00CDD7ED /* Debug */,
-				5C3BE6142CB6F10F00CDD7ED /* Release */,
+				5CFF9EDF2CB6F267002D2C1C /* Debug */,
+				5CFF9EE02CB6F267002D2C1C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 5C3BE5F72CB6F10E00CDD7ED /* Project object */;
+	rootObject = 5CFF9EC32CB6F266002D2C1C /* Project object */;
 }

@@ -1,6 +1,6 @@
 //
 //  SceneDelegate.swift
-//  RemoteConfig
+//  ConfigDashboard
 //
 //  Created by Alok Sahay on 09.10.2024.
 //
