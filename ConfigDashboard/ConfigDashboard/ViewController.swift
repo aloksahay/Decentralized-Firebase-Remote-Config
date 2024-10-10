@@ -22,7 +22,7 @@ class ViewController: UIViewController {
         config.apiRootURL = "https://api.example.com"
         config.apiVersion = "1.0.0"
         
-        ConfigManager.sharedManager.uploadConfig(config: config) { result in
+        NetworkManager.sharedManager.uploadConfig(config: config) { result in
             switch result {
             case .success(let receivedFileData):
                 print("Uploaded successfully, received response:")
