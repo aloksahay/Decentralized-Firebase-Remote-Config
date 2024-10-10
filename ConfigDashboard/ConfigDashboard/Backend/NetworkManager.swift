@@ -49,11 +49,11 @@ class NetworkManager {
                 print("Error: \(error.localizedDescription)")
                 return
             }
-
+            
             if let httpResponse = response as? HTTPURLResponse {
                 print("HTTP Status Code: \(httpResponse.statusCode)")
             }
-
+            
             if let data = data {
                 
                 do {
@@ -73,11 +73,8 @@ class NetworkManager {
                     completion(.failure(error))
                 }
             }
-        }
-
-        // Start the request
+        }            
         task.resume()
-        
     }
     
     
@@ -97,7 +94,13 @@ class NetworkManager {
         }
         
         do {
-            let jsonData = try JSONEncoder().encode(config)
+            guard let jsonString = config.toJSON(), let jsonData = jsonString.data(using: .utf8) else {
+                print("Failed to convert config to JSON.")
+                return
+            }
+            
+            print("JSON string: " + jsonString)
+            print("JSON config: " + (String(data: jsonData, encoding: .utf8) ?? ""))
             let boundary = "Boundary-\(UUID().uuidString)"
             
             var request = URLRequest(url: url)
@@ -122,7 +125,7 @@ class NetworkManager {
                         print("Response: \(responseString ?? "No response data")")
                         
                         let receivedConfig = try JSONDecoder().decode([String: ConfigFileData].self, from: data)
-                                
+                        
                         if let fileData = receivedConfig["data"] {
                             completion(.success(fileData))
                         } else {
@@ -139,11 +142,7 @@ class NetworkManager {
                     }
                 }
             }
-            
             task.resume()
-            
-        } catch {
-            completion(.failure(error))
         }
     }
     

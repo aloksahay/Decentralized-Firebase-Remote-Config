@@ -26,47 +26,31 @@ struct AppConfig: Codable {
     mutating func removeCustomField(key: String) {
         customFields?.removeAll { $0.keys.contains(key) }
     }
+    
+    func toJSON() -> String? {
+        var dict: [String: Any] = [:]
         
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
+        dict["appVersion"] = appVersion
+        dict["apiRootURL"] = apiRootURL
+        dict["apiVersion"] = apiVersion
+        dict["customButton"] = customButton
         
-        try container.encode(appVersion, forKey: .appVersion)
-        try container.encode(apiRootURL, forKey: .apiRootURL)
-        try container.encode(apiVersion, forKey: .apiVersion)
-        try container.encode(customButton, forKey: .customButton)
-                
         if let customFields = customFields {
-            var customFieldsContainer = container.nestedUnkeyedContainer(forKey: .customFields)
-            for field in customFields {
-                let sortedField = field.sorted { $0.key < $1.key }
-                var fieldContainer = customFieldsContainer.nestedContainer(keyedBy: DynamicKey.self)
-                for (key, value) in sortedField {
-                    try fieldContainer.encode(value, forKey: DynamicKey(stringValue: key)!)
-                }
+            let sortedCustomFields = customFields.map { field in
+                field.sorted { $0.key < $1.key }
             }
-        }
-    }
-    
-    enum CodingKeys: String, CodingKey {
-        case appVersion
-        case apiRootURL
-        case apiVersion
-        case customButton
-        case customFields
-    }
-    
-    struct DynamicKey: CodingKey {
-        var stringValue: String
-        var intValue: Int? { return nil }
-        
-        init?(intValue: Int) {
-            return nil
+            dict["customFields"] = sortedCustomFields
         }
         
-        init?(stringValue: String) {
-            self.stringValue = stringValue
+        // Convert the dictionary to JSON
+        if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted]) {
+            return String(data: jsonData, encoding: .utf8)
         }
+        
+        return nil
     }
+    
+    
 }
 
 struct AnyCodable: Codable {
