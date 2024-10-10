@@ -24,9 +24,9 @@ class ViewController: UIViewController {
         
         ConfigManager.sharedManager.uploadConfig(config: config) { result in
             switch result {
-            case .success(let receivedLocationData):
+            case .success(let receivedFileData):
                 print("Uploaded successfully, received response:")
-                print("File Location: \(receivedLocationData.data.cid)")
+                print("File Location: \(receivedFileData.cid)")
             case .failure(let error):
                 print("Failed to upload config: \(error)")
             }

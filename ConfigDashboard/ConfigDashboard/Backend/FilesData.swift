@@ -7,11 +7,7 @@
 
 import Foundation
 
-struct SavedFileData: Codable {
-    let data: FileData
-}
-
-struct FileData: Codable {
+struct ConfigFileData: Codable {
     let id: String
     let name: String
     let cid: String

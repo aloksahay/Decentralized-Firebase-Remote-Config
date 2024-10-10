@@ -82,7 +82,13 @@ class ConfigManager {
         return ProcessInfo.processInfo.environment["ConfigGroupID"] ?? "PINATA_GROUP_ID" // The group where you want to save your config files
     }
     
-    func uploadConfig(config: AppConfig, completion: @escaping (Result<SavedFileData, Error>) -> Void) {
+    func fetchAllConfigs(completion: @escaping (Result<[AppConfig], Error>) -> Void) {
+        
+        
+    }
+    
+    
+    func uploadConfig(config: AppConfig, completion: @escaping (Result<ConfigFileData, Error>) -> Void) {
         
         guard let url = URL(string: ConfigManager.pinataUploadEndpoint) else {
             print("Invalid URL.")
@@ -122,8 +128,19 @@ class ConfigManager {
                         let responseString = String(data: data, encoding: .utf8)
                         print("Response: \(responseString ?? "No response data")")
                         
-                        let receivedConfig = try JSONDecoder().decode(SavedFileData.self, from: data)
-                        completion(.success(receivedConfig))
+                        let receivedConfig = try JSONDecoder().decode([String: ConfigFileData].self, from: data)
+                                
+                        if let fileData = receivedConfig["data"] {
+                            completion(.success(fileData))
+                        } else {
+                            let error = NSError(
+                                domain: "api.pinata.cloud",
+                                code: 909,
+                                userInfo: [NSLocalizedDescriptionKey: "Parse error"]
+                            )
+                            completion(.failure(error))
+                        }
+                        
                     } catch {
                         completion(.failure(error))
                     }
