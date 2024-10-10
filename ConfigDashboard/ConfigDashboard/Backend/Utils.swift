@@ -27,4 +27,22 @@ class Utils {
         
         return body
     }
+    
+    static func formatTimeString(_ createdAt: String) -> String? {
+        
+        let isoFormatter = DateFormatter()
+        isoFormatter.locale = Locale(identifier: "en_US_POSIX")
+        isoFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ"
+        
+        if let date = isoFormatter.date(from: createdAt) {
+            let timeFormatter = DateFormatter()
+            timeFormatter.dateStyle = .short
+            timeFormatter.timeStyle = .medium
+                        
+            return timeFormatter.string(from: date)
+        } else {
+            print("Invalid date format")
+            return nil
+        }
+    }
 }

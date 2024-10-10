@@ -21,8 +21,62 @@ class NetworkManager {
         return ProcessInfo.processInfo.environment["ConfigGroupID"] ?? "PINATA_GROUP_ID" // The group where you want to save your config files
     }
     
-    func fetchAllConfigs(completion: @escaping (Result<[AppConfig], Error>) -> Void) {
+    // part of dashboard client
+    
+    func fetchAllConfigs(completion: @escaping (Result<[ConfigFileData], Error>) -> Void) {
         
+        let fetchFilesByGroupId = NetworkManager.pinataGetFilesEndpoint + "?group=\(NetworkManager.configGroupId)"
+        
+        guard let url = URL(string: fetchFilesByGroupId) else {
+            print("Invalid URL.")
+            
+            let error = NSError(
+                domain: "api.pinata.cloud",
+                code: 999,
+                userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]
+            )
+            
+            completion(.failure(error))
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(NetworkManager.bearerToken)", forHTTPHeaderField: "Authorization")
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Error: \(error.localizedDescription)")
+                return
+            }
+
+            if let httpResponse = response as? HTTPURLResponse {
+                print("HTTP Status Code: \(httpResponse.statusCode)")
+            }
+
+            if let data = data {
+                
+                do {
+                    let responseString = String(data: data, encoding: .utf8)
+                    print("Response: \(responseString ?? "No response data")")
+                    
+                    let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                    
+                    if let dataObject = json?["data"] as? [String: Any],
+                       let filesArray = dataObject["files"] as? [[String: Any]] {
+                        let filesData = try JSONSerialization.data(withJSONObject: filesArray, options: [])
+                        let files = try JSONDecoder().decode([ConfigFileData].self, from: filesData)
+                        completion(.success(files))
+                    }
+                    
+                } catch {
+                    completion(.failure(error))
+                }
+            }
+        }
+
+        // Start the request
+        task.resume()
         
     }
     

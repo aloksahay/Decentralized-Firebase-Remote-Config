@@ -12,7 +12,8 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        uploadtestConfig()
+//        uploadtestConfig()
+        fetchAllConfigs()
     }
     
     func uploadtestConfig() {
@@ -31,6 +32,18 @@ class ViewController: UIViewController {
                 print("Failed to upload config: \(error)")
             }
         }
+    }
+    
+    func fetchAllConfigs() {
+        NetworkManager.sharedManager.fetchAllConfigs { result in
+        
+            switch result {
+            case .success(let configs):
+                print("Fetched successfully, received response:")
+                print("Configs: \(configs)")
+            case .failure(let error):
+                print("Failed to fetch configs: \(error)")
+            }}
     }
 }
 

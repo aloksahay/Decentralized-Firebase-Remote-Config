@@ -15,7 +15,7 @@ struct ConfigFileData: Codable {
     let size: Int
     let numberOfFiles: Int
     let mimeType: String
-    let userId: String
+    let userId: String?
     let groupId: String
 
     enum CodingKeys: String, CodingKey {
