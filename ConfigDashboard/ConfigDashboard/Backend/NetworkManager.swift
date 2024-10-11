@@ -13,7 +13,7 @@ class NetworkManager {
     
     static var pinataUploadEndpoint: String = "https://uploads.pinata.cloud/v3/files"
     static var pinataFilesEndpoint: String = "https://api.pinata.cloud/v3/files"
-    static var pinataGatewayEndpoint: String = "https://cyan-genetic-barracuda-339.mypinata.cloud/files/"
+    static var pinataGatewayEndpoint: String = "https://cyan-genetic-barracuda-339.mypinata.cloud/files"
     static let urlDuration = (60 * 60 * 24 * 7)  //duration of signed URL is 7 days
     
     var remoteDatabaseState: ConfigFileData?
@@ -219,11 +219,44 @@ class NetworkManager {
     
     func downloadDatabase(completion: @escaping (Bool, Error?) -> Void) {
         
+        guard let endpoint = self.databaseURLEndpoint, let url = URL(string: endpoint) else {
+            print("Invalid URL")
+            return
+        }
         
+        let request = URLRequest(url: url)
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                if let error = error {
+                    print("Error occurred: \(error.localizedDescription)")
+                    completion(false, error)
+                    return
+                }
+                
+                if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+
+                    if let data = data {
+                        do {
+                            let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
+                            
+                            print("Downloaded JSON: \(jsonObject)")
+                            
+                            // save DB to self.dataSource
+                        } catch {
+                            completion(false, error)
+                        }
+                    } else {
+                        completion(false, error)
+                    }
+                } else {
+                    completion(false, error)
+                }
+            }
+            
+            task.resume()
     }
     
-    
-    func updateDB(completion: @escaping (Bool, Error?) -> Void) {
+    func refreshDatabase(completion: @escaping (Bool, Error?) -> Void) {
         
         if self.databaseURLEndpoint == nil || Utils.linkIsValid(urlString: self.databaseURLEndpoint) { // also check if location link is expired then generate a new signed link
             
@@ -243,7 +276,7 @@ class NetworkManager {
     
     func getDatabaseSignedURL(completion: @escaping (Bool, Error?) -> Void) {
         
-        guard let requestUrl = URL(string: NetworkManager.pinataFilesEndpoint + "/sign") else {
+        guard let requestUrl = URL(string: NetworkManager.pinataFilesEndpoint + "/sign"), let cid = self.remoteDatabaseState?.cid else {
             print("Invalid URL.")
             
             let error = NSError(
@@ -263,14 +296,18 @@ class NetworkManager {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         let bodyParams: [String: Any] = [
-            "url": NetworkManager.pinataGatewayEndpoint,
-            "date": Date().timeIntervalSince1970, //now
+            "url": NetworkManager.pinataGatewayEndpoint + "/\(cid)",
+            "date": Int(Date().timeIntervalSince1970 * 1000), // time is in milliseconds
             "expires": NetworkManager.urlDuration,
             "method": "GET"
         ]
         
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: bodyParams, options: [])
+            let responseString = String(data: jsonData, encoding: .utf8)
+            
+            print("Body Parameters: \(responseString ?? "No response data")")
+            
             request.httpBody = jsonData
         } catch {
             print("Error serializing JSON: \(error)")
@@ -292,7 +329,7 @@ class NetworkManager {
                     if let jsonDict = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
                        let urlString = jsonDict["data"] as? String {
                         self.databaseURLEndpoint = urlString
-                        completion(true,nil)
+                        completion(true, nil)
                     } else {
                         print("Failed to extract URL from the response.")
                         completion(false, error)

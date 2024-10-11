@@ -32,9 +32,20 @@ class ViewController: UIViewController {
                 }
             } else {
                 // DB found, fetch DB
-                
+                self?.refreshData()
             }
         }
+    }
+    
+    func refreshData() {
+        
+        NetworkManager.sharedManager.refreshDatabase { (success, error) in
+            
+            print("DB updated")
+            
+            
+        }
+        
     }
     
     func createNewDatabase() {
