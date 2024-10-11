@@ -9,11 +9,16 @@ import Foundation
 
 class NetworkManager {
     
-    static var pinataUploadEndpoint: String = "https://uploads.pinata.cloud/v3/files"
-    static var pinataGetFilesEndpoint: String = "https://api.pinata.cloud/v3/files"
     static let sharedManager = NetworkManager()
     
-    var databaseLocation: ConfigFileData?
+    static var pinataUploadEndpoint: String = "https://uploads.pinata.cloud/v3/files"
+    static var pinataFilesEndpoint: String = "https://api.pinata.cloud/v3/files"
+    static var pinataGatewayEndpoint: String = "https://cyan-genetic-barracuda-339.mypinata.cloud/files/"
+    static let urlDuration = 500000  //duration of signed URL
+    
+    var remoteDatabaseState: ConfigFileData?
+    var dataSource: ConfigDatabase?
+    var databaseURLEndpoint: String?
     
     static var bearerToken: String {
         return ProcessInfo.processInfo.environment["PinataToken"] ?? "PINATA_JWT_TOKEN" // add you JWT here (not safe to save it in the client though).
@@ -28,62 +33,62 @@ class NetworkManager {
     
     
     
-//    func fetchConfigById(fileId: String, completion: @escaping (Result<AppConfig, Error>) -> Void) {
-//        
-//        let fetchFileByName = NetworkManager.pinataGetFilesEndpoint + "/\(fileId)"
-//        
-//        guard let url = URL(string: fetchFileByName) else {
-//            print("Invalid URL.")
-//            
-//            let error = NSError(
-//                domain: "api.pinata.cloud",
-//                code: 999,
-//                userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]
-//            )            
-//            completion(.failure(error))
-//            return
-//        }
-//        
-//        var request = URLRequest(url: url)
-//        request.httpMethod = "GET"
-//        request.setValue("Bearer \(NetworkManager.bearerToken)", forHTTPHeaderField: "Authorization")
-//        
-//        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-//            if let error = error {
-//                print("Error: \(error.localizedDescription)")
-//                return
-//            }
-//            
-//            if let httpResponse = response as? HTTPURLResponse {
-//                print("HTTP Status Code: \(httpResponse.statusCode)")
-//            }
-//            
-//            if let data = data {
-//                
-//                do {
-//                    let responseString = String(data: data, encoding: .utf8)
-//                    print("Response: \(responseString ?? "No response data")")
-//                    
-//                    let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-//                    
-////                    if let dataObject = json?["data"] as? [String: Any],
-////                       let filesArray = dataObject["files"] as? [[String: Any]] {
-////                        let filesData = try JSONSerialization.data(withJSONObject: filesArray, options: [])
-////                        let files = try JSONDecoder().decode([ConfigFileData].self, from: filesData)
-////                        completion(.success(files))
-////                    }
-//                    
-//                } catch {
-//                    completion(.failure(error))
-//                }
-//            }
-//        }
-//        task.resume()
-//    }
+    //    func fetchConfigById(fileId: String, completion: @escaping (Result<AppConfig, Error>) -> Void) {
+    //
+    //        let fetchFileByName = NetworkManager.pinataGetFilesEndpoint + "/\(fileId)"
+    //
+    //        guard let url = URL(string: fetchFileByName) else {
+    //            print("Invalid URL.")
+    //
+    //            let error = NSError(
+    //                domain: "api.pinata.cloud",
+    //                code: 999,
+    //                userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]
+    //            )
+    //            completion(.failure(error))
+    //            return
+    //        }
+    //
+    //        var request = URLRequest(url: url)
+    //        request.httpMethod = "GET"
+    //        request.setValue("Bearer \(NetworkManager.bearerToken)", forHTTPHeaderField: "Authorization")
+    //
+    //        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+    //            if let error = error {
+    //                print("Error: \(error.localizedDescription)")
+    //                return
+    //            }
+    //
+    //            if let httpResponse = response as? HTTPURLResponse {
+    //                print("HTTP Status Code: \(httpResponse.statusCode)")
+    //            }
+    //
+    //            if let data = data {
+    //
+    //                do {
+    //                    let responseString = String(data: data, encoding: .utf8)
+    //                    print("Response: \(responseString ?? "No response data")")
+    //
+    //                    let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+    //
+    ////                    if let dataObject = json?["data"] as? [String: Any],
+    ////                       let filesArray = dataObject["files"] as? [[String: Any]] {
+    ////                        let filesData = try JSONSerialization.data(withJSONObject: filesArray, options: [])
+    ////                        let files = try JSONDecoder().decode([ConfigFileData].self, from: filesData)
+    ////                        completion(.success(files))
+    ////                    }
+    //
+    //                } catch {
+    //                    completion(.failure(error))
+    //                }
+    //            }
+    //        }
+    //        task.resume()
+    //    }
     
     func fetchDatabaseState(completion: @escaping (Bool, Error?) -> Void) {
         
-        let fetchFilesByGroupId = NetworkManager.pinataGetFilesEndpoint + "?group=\(NetworkManager.configGroupId)"
+        let fetchFilesByGroupId = NetworkManager.pinataFilesEndpoint + "?group=\(NetworkManager.configGroupId)"
         
         guard let url = URL(string: fetchFilesByGroupId) else {
             print("Invalid URL.")
@@ -126,21 +131,25 @@ class NetworkManager {
                         let files = try JSONDecoder().decode([ConfigFileData].self, from: filesData)
                         
                         if let dbLocation = files.first(where: { $0.name == "AppConfig"}) {
-                            self.databaseLocation = dbLocation
+                            self.remoteDatabaseState = dbLocation
                         }
                         completion(true, nil)
                     }
                     
                 } catch {
                     completion(false, error)
+                    return
                 }
             }
-        }            
+        }
         task.resume()
     }
     
-    
-    func uploadConfig(config: AppConfig, completion: @escaping (Result<ConfigFileData, Error>) -> Void) {
+    func uploadDatabase(completion: @escaping (Bool, Error?) -> Void) {
+        
+        if (dataSource == nil) {
+            dataSource = ConfigDatabase(configurations: [])
+        }
         
         guard let url = URL(string: NetworkManager.pinataUploadEndpoint) else {
             print("Invalid URL.")
@@ -151,19 +160,12 @@ class NetworkManager {
                 userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]
             )
             
-            completion(.failure(error))
+            completion(false,error)
             return
         }
         
         do {
-            
-            guard let jsonString = config.encodeToJSON(), let jsonData = jsonString.data(using: .utf8) else {
-                print("Failed to convert config to JSON.")
-                return
-            }
-            
-            print("JSON string: " + jsonString)
-            print("JSON config: " + (String(data: jsonData, encoding: .utf8) ?? ""))
+            let jsonData = try JSONEncoder().encode(dataSource)
             let boundary = "Boundary-\(UUID().uuidString)"
             
             var request = URLRequest(url: url)
@@ -178,7 +180,7 @@ class NetworkManager {
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
                 
                 if let error = error {
-                    completion(.failure(error))
+                    completion(false, error)
                     return
                 }
                 
@@ -188,25 +190,101 @@ class NetworkManager {
                         print("Response: \(responseString ?? "No response data")")
                         
                         let receivedConfig = try JSONDecoder().decode([String: ConfigFileData].self, from: data)
-                        
                         if let fileData = receivedConfig["data"] {
-                            completion(.success(fileData))
+                            
+                            // saved location of DB
+                            self.remoteDatabaseState = fileData
+                            completion(true, nil)
                         } else {
                             let error = NSError(
                                 domain: "api.pinata.cloud",
                                 code: 909,
                                 userInfo: [NSLocalizedDescriptionKey: "Parse error"]
                             )
-                            completion(.failure(error))
+                            completion(false, error)
+                            return
                         }
                         
                     } catch {
-                        completion(.failure(error))
+                        completion(false, error)
                     }
                 }
             }
             task.resume()
+            
+        } catch {
+            completion(false, error)
         }
     }
     
+    func fetchDB(completion: @escaping (Bool, Error?) -> Void) {
+        
+        
+        
+    }
+    
+    func getDatabaseSignedURL(completion: @escaping (Bool, Error?) -> Void) {
+        
+        guard let requestUrl = URL(string: NetworkManager.pinataFilesEndpoint + "/sign") else {
+            print("Invalid URL.")
+            
+            let error = NSError(
+                domain: "api.pinata.cloud",
+                code: 999,
+                userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]
+            )
+            
+            completion(false,error)
+            return
+        }
+        
+        var request = URLRequest(url: requestUrl)
+        request.httpMethod = "POST"
+        
+        request.setValue("Bearer \(NetworkManager.bearerToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let bodyParams: [String: Any] = [
+            "url": NetworkManager.pinataGatewayEndpoint,
+            "date": Date().timeIntervalSince1970, //now
+            "expires": NetworkManager.urlDuration,
+            "method": "GET"
+        ]
+        
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: bodyParams, options: [])
+            request.httpBody = jsonData
+        } catch {
+            print("Error serializing JSON: \(error)")
+            return
+        }
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Error: \(error)")
+                completion(false,error)
+                return
+            }
+            
+            if let data = data {
+                do {
+                    let responseString = String(data: data, encoding: .utf8)
+                    print("Response: \(responseString ?? "No response data")")
+                    
+                    if let jsonDict = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                       let urlString = jsonDict["data"] as? String {
+                        self.databaseURLEndpoint = urlString
+                        completion(true,nil)
+                    } else {
+                        print("Failed to extract URL from the response.")
+                        completion(false, error)
+                    }
+                } catch {
+                    completion(false, error)
+                }
+                
+            }
+        }
+        task.resume()
+    }
 }
