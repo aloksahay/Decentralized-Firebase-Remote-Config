@@ -14,7 +14,7 @@ class NetworkManager {
     static var pinataUploadEndpoint: String = "https://uploads.pinata.cloud/v3/files"
     static var pinataFilesEndpoint: String = "https://api.pinata.cloud/v3/files"
     static var pinataGatewayEndpoint: String = "https://cyan-genetic-barracuda-339.mypinata.cloud/files/"
-    static let urlDuration = 500000  //duration of signed URL
+    static let urlDuration = (60 * 60 * 24 * 7)  //duration of signed URL is 7 days
     
     var remoteDatabaseState: ConfigFileData?
     var dataSource: ConfigDatabase?
@@ -217,10 +217,28 @@ class NetworkManager {
         }
     }
     
-    func fetchDB(completion: @escaping (Bool, Error?) -> Void) {
+    func downloadDatabase(completion: @escaping (Bool, Error?) -> Void) {
         
         
+    }
+    
+    
+    func updateDB(completion: @escaping (Bool, Error?) -> Void) {
         
+        if self.databaseURLEndpoint == nil || Utils.linkIsValid(urlString: self.databaseURLEndpoint) { // also check if location link is expired then generate a new signed link
+            
+            // get location for the DB signed URL first
+            getDatabaseSignedURL { (success, error) in
+                if success {
+                    self.downloadDatabase(completion: completion)
+                } else {
+                    completion (false, error)
+                }
+            }
+        } else {
+            // link is valid, download DB
+            self.downloadDatabase(completion: completion)
+        }
     }
     
     func getDatabaseSignedURL(completion: @escaping (Bool, Error?) -> Void) {
@@ -287,4 +305,6 @@ class NetworkManager {
         }
         task.resume()
     }
+    
+    
 }

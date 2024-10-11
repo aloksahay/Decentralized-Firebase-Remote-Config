@@ -38,11 +38,45 @@ class Utils {
             let timeFormatter = DateFormatter()
             timeFormatter.dateStyle = .short
             timeFormatter.timeStyle = .medium
-                        
+            
             return timeFormatter.string(from: date)
         } else {
             print("Invalid date format")
             return nil
         }
+    }
+    
+    static func linkIsValid(urlString: String?) -> Bool {
+        
+        guard let urlString = urlString, let urlComponents = URLComponents(string: urlString) else {
+            print("Invalid URL")
+            return false
+        }
+        
+        if let queryItems = urlComponents.queryItems {
+            
+            guard let dateString = queryItems.first(where: { $0.name == "X-Date" })?.value,
+                  let expiresString = queryItems.first(where: { $0.name == "X-Expires" })?.value,
+                  let dateInterval = TimeInterval(dateString),
+                  let expiresInterval = TimeInterval(expiresString) else {
+                
+                print("Missing or invalid X-Date or X-Expires")
+                return false
+            }
+            
+            let linkCreationDate = Date(timeIntervalSince1970: dateInterval)
+            let expirationDate = linkCreationDate.addingTimeInterval(expiresInterval)
+            
+            let currentDate = Date()
+            
+            if currentDate < expirationDate && currentDate >= linkCreationDate {
+                print("Link is still valid")
+                return true
+            } else {
+                print("Link has expired")
+                return false
+            }
+        }
+        return false
     }
 }
