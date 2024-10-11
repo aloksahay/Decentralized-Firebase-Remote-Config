@@ -13,6 +13,8 @@ class NetworkManager {
     static var pinataGetFilesEndpoint: String = "https://api.pinata.cloud/v3/files"
     static let sharedManager = NetworkManager()
     
+    var databaseLocation: ConfigFileData?
+    
     static var bearerToken: String {
         return ProcessInfo.processInfo.environment["PinataToken"] ?? "PINATA_JWT_TOKEN" // add you JWT here (not safe to save it in the client though).
     }
@@ -23,7 +25,63 @@ class NetworkManager {
     
     // part of dashboard client
     
-    func fetchAllConfigs(completion: @escaping (Result<[ConfigFileData], Error>) -> Void) {
+    
+    
+    
+//    func fetchConfigById(fileId: String, completion: @escaping (Result<AppConfig, Error>) -> Void) {
+//        
+//        let fetchFileByName = NetworkManager.pinataGetFilesEndpoint + "/\(fileId)"
+//        
+//        guard let url = URL(string: fetchFileByName) else {
+//            print("Invalid URL.")
+//            
+//            let error = NSError(
+//                domain: "api.pinata.cloud",
+//                code: 999,
+//                userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]
+//            )            
+//            completion(.failure(error))
+//            return
+//        }
+//        
+//        var request = URLRequest(url: url)
+//        request.httpMethod = "GET"
+//        request.setValue("Bearer \(NetworkManager.bearerToken)", forHTTPHeaderField: "Authorization")
+//        
+//        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+//            if let error = error {
+//                print("Error: \(error.localizedDescription)")
+//                return
+//            }
+//            
+//            if let httpResponse = response as? HTTPURLResponse {
+//                print("HTTP Status Code: \(httpResponse.statusCode)")
+//            }
+//            
+//            if let data = data {
+//                
+//                do {
+//                    let responseString = String(data: data, encoding: .utf8)
+//                    print("Response: \(responseString ?? "No response data")")
+//                    
+//                    let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+//                    
+////                    if let dataObject = json?["data"] as? [String: Any],
+////                       let filesArray = dataObject["files"] as? [[String: Any]] {
+////                        let filesData = try JSONSerialization.data(withJSONObject: filesArray, options: [])
+////                        let files = try JSONDecoder().decode([ConfigFileData].self, from: filesData)
+////                        completion(.success(files))
+////                    }
+//                    
+//                } catch {
+//                    completion(.failure(error))
+//                }
+//            }
+//        }
+//        task.resume()
+//    }
+    
+    func fetchDatabaseState(completion: @escaping (Bool, Error?) -> Void) {
         
         let fetchFilesByGroupId = NetworkManager.pinataGetFilesEndpoint + "?group=\(NetworkManager.configGroupId)"
         
@@ -36,7 +94,7 @@ class NetworkManager {
                 userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]
             )
             
-            completion(.failure(error))
+            completion(false, error)
             return
         }
         
@@ -66,11 +124,15 @@ class NetworkManager {
                        let filesArray = dataObject["files"] as? [[String: Any]] {
                         let filesData = try JSONSerialization.data(withJSONObject: filesArray, options: [])
                         let files = try JSONDecoder().decode([ConfigFileData].self, from: filesData)
-                        completion(.success(files))
+                        
+                        if let dbLocation = files.first(where: { $0.name == "AppConfig"}) {
+                            self.databaseLocation = dbLocation
+                        }
+                        completion(true, nil)
                     }
                     
                 } catch {
-                    completion(.failure(error))
+                    completion(false, error)
                 }
             }
         }            
@@ -94,7 +156,8 @@ class NetworkManager {
         }
         
         do {
-            guard let jsonString = config.toJSON(), let jsonData = jsonString.data(using: .utf8) else {
+            
+            guard let jsonString = config.encodeToJSON(), let jsonData = jsonString.data(using: .utf8) else {
                 print("Failed to convert config to JSON.")
                 return
             }
@@ -108,7 +171,7 @@ class NetworkManager {
             request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
             request.setValue("Bearer \(NetworkManager.bearerToken)", forHTTPHeaderField: "Authorization")
             
-            let body = Utils.createMultipartFileBody(fileData: jsonData, fileName: "config.json", groupId: NetworkManager.configGroupId, boundary: boundary)
+            let body = Utils.createMultipartFileBody(fileData: jsonData, fileName: "AppConfig", groupId: NetworkManager.configGroupId, boundary: boundary)
             
             request.httpBody = body
             

@@ -7,6 +7,10 @@
 
 import Foundation
 
+struct ConfigDatabase: Codable {
+    var configurations: [AppConfig]
+}
+
 struct AppConfig: Codable {
     var appVersion: String?
     var apiRootURL: String?
@@ -27,30 +31,18 @@ struct AppConfig: Codable {
         customFields?.removeAll { $0.keys.contains(key) }
     }
     
-    func toJSON() -> String? {
-        var dict: [String: Any] = [:]
+    func encodeToJSON() -> String? {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
         
-        dict["appVersion"] = appVersion
-        dict["apiRootURL"] = apiRootURL
-        dict["apiVersion"] = apiVersion
-        dict["customButton"] = customButton
-        
-        if let customFields = customFields {
-            let sortedCustomFields = customFields.map { field in
-                field.sorted { $0.key < $1.key }
-            }
-            dict["customFields"] = sortedCustomFields
-        }
-        
-        // Convert the dictionary to JSON
-        if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted]) {
+        do {
+            let jsonData = try encoder.encode(self)
             return String(data: jsonData, encoding: .utf8)
+        } catch {
+            print("Error encoding AppConfig to JSON: \(error)")
+            return nil
         }
-        
-        return nil
     }
-    
-    
 }
 
 struct AnyCodable: Codable {
