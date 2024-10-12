@@ -174,7 +174,6 @@ class NetworkManager {
             request.setValue("Bearer \(NetworkManager.bearerToken)", forHTTPHeaderField: "Authorization")
             
             let body = Utils.createMultipartFileBody(fileData: jsonData, fileName: "AppConfig", groupId: NetworkManager.configGroupId, boundary: boundary)
-            
             request.httpBody = body
             
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
@@ -237,11 +236,13 @@ class NetworkManager {
 
                     if let data = data {
                         do {
-                            let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
+                            let responseString = String(data: data, encoding: .utf8)
+                            print("Response: \(responseString ?? "No response data")")
                             
-                            print("Downloaded JSON: \(jsonObject)")
+                            let database = try JSONDecoder().decode(ConfigDatabase.self, from: data)
+                            self.dataSource = database //save DB for the rest of the session
+                            completion(true, nil)
                             
-                            // save DB to self.dataSource
                         } catch {
                             completion(false, error)
                         }
@@ -260,7 +261,7 @@ class NetworkManager {
         
         if self.databaseURLEndpoint == nil || Utils.linkIsValid(urlString: self.databaseURLEndpoint) { // also check if location link is expired then generate a new signed link
             
-            // get location for the DB signed URL first
+            // get location for the db signed url first
             getDatabaseSignedURL { (success, error) in
                 if success {
                     self.downloadDatabase(completion: completion)
@@ -269,7 +270,7 @@ class NetworkManager {
                 }
             }
         } else {
-            // link is valid, download DB
+            // link is valid, download db
             self.downloadDatabase(completion: completion)
         }
     }

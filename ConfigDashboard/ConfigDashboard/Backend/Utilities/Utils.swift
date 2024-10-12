@@ -64,7 +64,7 @@ class Utils {
                 return false
             }
             
-            let linkCreationDate = Date(timeIntervalSince1970: dateInterval)
+            let linkCreationDate = Date(timeIntervalSince1970: dateInterval / 1000) // Date is in milliseconds
             let expirationDate = linkCreationDate.addingTimeInterval(expiresInterval)
             
             let currentDate = Date()
