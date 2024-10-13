@@ -88,5 +88,12 @@ extension ConfigDetailViewController: UITableViewDelegate, UITableViewDataSource
         return cell
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+            
+        if indexPath.row == 0 {
+            // first cell, add new config
+            self.performSegue(withIdentifier: "createNewConfig", sender: nil)
+        }
+    }
     
 }
