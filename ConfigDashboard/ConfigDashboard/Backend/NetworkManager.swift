@@ -229,7 +229,7 @@ class NetworkManager {
     
     func refreshDatabase(completion: @escaping (Bool, Error?) -> Void) {
         
-        if self.databaseURLEndpoint == nil || Utils.linkIsValid(urlString: self.databaseURLEndpoint) { // also check if location link is expired then generate a new signed link
+        if self.databaseURLEndpoint == nil || Utils.linkIsValid(urlString: self.databaseURLEndpoint) == false { // also check if location link is expired then generate a new signed link
             
             // get location for the db signed url first
             getDatabaseSignedURL { (success, error) in
