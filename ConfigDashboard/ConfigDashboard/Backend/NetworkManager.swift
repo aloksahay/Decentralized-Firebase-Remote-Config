@@ -8,14 +8,13 @@
 import Foundation
 
 class NetworkManager {
-    
+        
     static let sharedManager = NetworkManager()
     
     static let pinataUploadEndpoint: String = "https://uploads.pinata.cloud/v3/files"
     static let pinataFilesEndpoint: String = "https://api.pinata.cloud/v3/files"
     static let pinataGatewayEndpoint: String = "https://cyan-genetic-barracuda-339.mypinata.cloud/files"
-    static let remoteConfigName: String = "AppConfig"
-    static let urlDuration = (60 * 60 * 24 * 30)  //duration of signed URL is 30 days
+    static let urlDuration = (60 * 60 * 24 * 90)  //duration of signed URL in days
     
     var remoteDatabaseState: ConfigFileData?
     var dataSource: ConfigDatabase?
@@ -36,22 +35,10 @@ class NetworkManager {
      
      2. Clean up the shared dataTask blocks, functions are getting too long and hard to read. Move all code inside blocks into block arguements somewhere else.
      
-     */
-    
-    
-    // MARK: Append config
-    
-    func uploadNewConfig(config: AppConfig, completion: @escaping (Bool, Error?) -> Void) {
-        
-        guard let _ = dataSource else {
-            return completion(false, nil)
-        }
-        
-        self.dataSource?.addConfig(config)
-        uploadDatabase(completion: completion)
-    }
+     */   
     
     // MARK: Check DB state
+    
     
     func fetchDatabaseState(completion: @escaping (Bool, Error?) -> Void) {
         
@@ -97,10 +84,12 @@ class NetworkManager {
                         let filesData = try JSONSerialization.data(withJSONObject: filesArray, options: [])
                         let files = try JSONDecoder().decode([ConfigFileData].self, from: filesData)
                         
-                        if let dbLocation = files.first(where: { $0.name == NetworkManager.remoteConfigName}) {
+                        if let dbLocation = files.first {
                             self.remoteDatabaseState = dbLocation
-                        }
-                        completion(true, nil)
+                            self.refreshDatabase(completion: completion)
+                        } else {
+                            completion(true, nil)
+                        }                        
                     }
                     
                 } catch {
@@ -114,7 +103,7 @@ class NetworkManager {
     
     // MARK: Upload DB
     
-    func uploadDatabase(completion: @escaping (Bool, Error?) -> Void) {
+    func uploadDatabase(projectName: String, completion: @escaping (Bool, Error?) -> Void) {
         
         if (dataSource == nil) {
             dataSource = ConfigDatabase(configurations: [])
@@ -142,7 +131,7 @@ class NetworkManager {
             request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
             request.setValue("Bearer \(NetworkManager.bearerToken)", forHTTPHeaderField: "Authorization")
             
-            let body = Utils.createMultipartFileBody(fileData: jsonData, fileName: NetworkManager.remoteConfigName, groupId: NetworkManager.configGroupId, boundary: boundary)
+            let body = Utils.createMultipartFileBody(fileData: jsonData, fileName: projectName, groupId: NetworkManager.configGroupId, boundary: boundary)
             request.httpBody = body
             
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
@@ -327,6 +316,18 @@ class NetworkManager {
         task.resume()
     }
     
+    // MARK: Append config
+    
+    func uploadNewConfig(config: AppConfig, completion: @escaping (Bool, Error?) -> Void) {
+        
+        guard let _ = dataSource, let projectName = remoteDatabaseState?.name  else {
+            return completion(false, nil)
+        }
+        
+        self.dataSource?.addConfig(config)
+        uploadDatabase(projectName: projectName, completion: completion)
+    }
+    
     // MARK: Hot Swap DBs
     
     func swapDatabase(oldCID: String, newCID: String, completion: @escaping (Bool, Error?) -> Void) {
@@ -372,7 +373,7 @@ class NetworkManager {
             if let httpResponse = response as? HTTPURLResponse {
                 print("HTTP Status Code: \(httpResponse.statusCode)")
             }
-
+            
             if let data = data {
                 do {
                     let responseString = String(data: data, encoding: .utf8)
@@ -380,7 +381,7 @@ class NetworkManager {
                     
                     if let jsonDict = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
                        let updateDB = jsonDict["data"] as? [String: Any], let mappedCID = updateDB["mapped_cid"] {          print("DB update successful: \(mappedCID)")
-                        completion(true, nil)
+                        self.refreshDatabase(completion: completion)
                     } else {
                         print("Failed to extract new CID from the response.")
                         completion(false, error)

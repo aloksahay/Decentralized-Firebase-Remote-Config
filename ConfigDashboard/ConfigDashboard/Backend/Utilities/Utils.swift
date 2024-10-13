@@ -28,6 +28,14 @@ class Utils {
         return body
     }
     
+    static func formatTimeStringFromTimestamp(_ timestamp: Int) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        let timeFormatter = DateFormatter()
+        timeFormatter.dateStyle = .short
+        timeFormatter.timeStyle = .medium
+        return timeFormatter.string(from: date)
+    }
+    
     static func formatTimeString(_ createdAt: String) -> String? {
         
         let isoFormatter = DateFormatter()

@@ -7,15 +7,70 @@
 
 import UIKit
 
+extension UIColor {
+    
+    // Initialize UIColor from a hex string
+    convenience init(hex: String) {
+        var hexString: String = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        
+        // If the string has a '#' prefix, remove it
+        if hexString.hasPrefix("#") {
+            hexString.remove(at: hexString.startIndex)
+        }
+        
+        // Ensure that the string is exactly 6 or 8 characters
+        if hexString.count == 6 {
+            hexString.append("FF") // Append 'FF' for full alpha if no alpha provided
+        }
+        
+        assert(hexString.count == 8, "Invalid hex code used.")
+        
+        // Convert the hex string into a UInt32
+        var rgbValue: UInt64 = 0
+        Scanner(string: hexString).scanHexInt64(&rgbValue)
+        
+        // Extract the color components
+        let red = CGFloat((rgbValue & 0xFF000000) >> 24) / 255.0
+        let green = CGFloat((rgbValue & 0x00FF0000) >> 16) / 255.0
+        let blue = CGFloat((rgbValue & 0x0000FF00) >> 8) / 255.0
+        let alpha = CGFloat(rgbValue & 0x000000FF) / 255.0
+        
+        // Initialize the color
+        self.init(red: red, green: green, blue: blue, alpha: alpha)
+    }
+}
+
+
+
+class BaseViewController: UIViewController {
+    
+    let themeGrayColor: UIColor = UIColor(hex: "#1D1E19")
+    let themeYellowColor: UIColor = UIColor(hex: "#BEA03B")
+    
+    func showAlert(message: String) {
+        DispatchQueue.main.async {
+            let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+            let cancelAction = UIAlertAction(title: "OK", style: .default)
+            alert.addAction(cancelAction)
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
+}
+
+
 class ViewController: UIViewController {
+        
+    @IBOutlet weak var tableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        tableView.delegate = self
+        tableView.dataSource = self
         fetchDatabaseState()
     }
     
-    @IBAction func postConfig(_ sender: Any) {
+     func postConfig() {
         createNewConfig()
     }
     
@@ -23,16 +78,10 @@ class ViewController: UIViewController {
         
         NetworkManager.sharedManager.fetchDatabaseState { [weak self] (success, error) in
             if success == false {
-                self?.showAlert(message: error?.localizedDescription ?? "Unknown error")
+//                self?.showAlert(message: error?.localizedDescription ?? "Unknown error")
                 return
             }
-            
-            if NetworkManager.sharedManager.remoteDatabaseState?.cid == nil {
-                    self?.showNoDBAlert()
-            } else {
-                // DB found, fetch DB
-                self?.refreshData()
-            }
+            self?.refreshData()
         }
     }
     
@@ -50,7 +99,7 @@ class ViewController: UIViewController {
             if success {
                 print("config added")
             } else {
-                self?.showAlert(message: error?.localizedDescription ?? "Unknown error")
+//                self?.showAlert(message: error?.localizedDescription ?? "Unknown error")
             }
         }
     }
@@ -60,48 +109,71 @@ class ViewController: UIViewController {
         NetworkManager.sharedManager.refreshDatabase { [weak self] (success, error) in
             
             if success {
-                print("DB updated")
+                self?.updateUI()
             } else {
-                self?.showAlert(message: error?.localizedDescription ?? "Unknown error")
+//                self?.showAlert(message: error?.localizedDescription ?? "Unknown error")
             }
         }
     }
     
-    func createNewDatabase() {
-        NetworkManager.sharedManager.uploadDatabase { [weak self] (success, error) in
-            //            switch result {
-            //            case .success(let receivedFileData):
-            //                print("Uploaded successfully, received response:")
-            //                print("File Location: \(receivedFileData.cid)")
-            //            case .failure(let error):
-            //                print("Failed to upload config: \(error)")
-            //            }
+    func updateUI() {
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
         }
     }
+    
+    
 }
 
 extension ViewController {
     
-    func showAlert(message: String) {
-        DispatchQueue.main.async {
-            let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-            let cancelAction = UIAlertAction(title: "OK", style: .default)
-            alert.addAction(cancelAction)
-            self.present(alert, animated: true, completion: nil)
-        }
+//    func showAlert(message: String) {
+//        DispatchQueue.main.async {
+//            let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+//            let cancelAction = UIAlertAction(title: "OK", style: .default)
+//            alert.addAction(cancelAction)
+//            self.present(alert, animated: true, completion: nil)
+//        }
+//    }
+    
+//    public func showNoDBAlert() {
+//        DispatchQueue.main.async {
+//            let alert = UIAlertController(title: "Config DB not found", message: "Do you want to create one??", preferredStyle: .alert)
+//            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+//            let confirmAction = UIAlertAction(title: "Yes, Go Ahead", style: .default) { _ in
+//                // create and upload an empty DB file
+//                self.createNewDatabase()
+//            }
+//            alert.addAction(cancelAction)
+//            alert.addAction(confirmAction)
+//            self.present(alert, animated: true, completion: nil)
+//        }
+//    }
+}
+
+extension ViewController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 1
     }
     
-    public func showNoDBAlert() {
-        DispatchQueue.main.async {
-            let alert = UIAlertController(title: "Config DB not found", message: "Do you want to create one??", preferredStyle: .alert)
-            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
-            let confirmAction = UIAlertAction(title: "Yes, Go Ahead", style: .default) { _ in
-                // create and upload an empty DB file
-                self.createNewDatabase()
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+             
+        if let remoteDB = NetworkManager.sharedManager.dataSource {
+            
+            var congifurationsString: String = "Found \(remoteDB.configurations.count) configurations."
+            if let lastKnownConfig = remoteDB.configurations.last {
+                let lastKnownConfigTime = Utils.formatTimeStringFromTimestamp(lastKnownConfig.configCreatedAt)
+                congifurationsString.append("\nUpdate: \(lastKnownConfigTime)")
             }
-            alert.addAction(cancelAction)
-            alert.addAction(confirmAction)
-            self.present(alert, animated: true, completion: nil)
+            
+            cell.textLabel?.text = congifurationsString
+            
+        } else { // db doesnt exist
+            cell.textLabel?.text = "Remote database not configured, configure now?"
         }
+        
+        return cell
     }
+    
 }

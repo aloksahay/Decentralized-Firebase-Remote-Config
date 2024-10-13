@@ -14,7 +14,6 @@ struct ConfigDatabase: Codable {
         configurations.append(config)
     }
     
-   
 }
 
 struct AppConfig: Codable {
