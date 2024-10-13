@@ -66,11 +66,7 @@ class NetworkManager {
                 print("Error: \(error.localizedDescription)")
                 return
             }
-            
-            if let httpResponse = response as? HTTPURLResponse {
-                print("HTTP Status Code: \(httpResponse.statusCode)")
-            }
-            
+                        
             if let data = data {
                 
                 do {
@@ -131,6 +127,9 @@ class NetworkManager {
             request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
             request.setValue("Bearer \(NetworkManager.bearerToken)", forHTTPHeaderField: "Authorization")
             
+            let responseString = String(data: jsonData, encoding: .utf8)
+            print("Upload config: \(responseString ?? "No response data")")
+            
             let body = Utils.createMultipartFileBody(fileData: jsonData, fileName: projectName, groupId: NetworkManager.configGroupId, boundary: boundary)
             request.httpBody = body
             
@@ -150,15 +149,14 @@ class NetworkManager {
                         if let fileData = receivedConfig["data"] {
                             
                             if self.remoteDatabaseState == nil {
-                                
                                 // DB is saved for the first time
                                 self.remoteDatabaseState = fileData
-                                completion(true, nil)
-                                
+                                self.getDatabaseSignedURL(completion: completion)
                             } else if let oldCID = self.remoteDatabaseState?.cid, oldCID != fileData.cid {
-                                
                                 //DB is saved to new location, perform hot swap
                                 self.swapDatabase(oldCID: oldCID, newCID: fileData.cid, completion: completion)
+                            } else {
+                                print("‼️ Something weird")
                             }
                         } else {
                             let error = NSError(
@@ -229,7 +227,7 @@ class NetworkManager {
     
     func refreshDatabase(completion: @escaping (Bool, Error?) -> Void) {
         
-        if self.databaseURLEndpoint == nil || Utils.linkIsValid(urlString: self.databaseURLEndpoint) == false { // also check if location link is expired then generate a new signed link
+        if self.databaseURLEndpoint == nil || (Utils.linkIsValid(urlString: self.databaseURLEndpoint) == false) { // also check if location link is expired then generate a new signed link
             
             // get location for the db signed url first
             getDatabaseSignedURL { (success, error) in
@@ -240,7 +238,7 @@ class NetworkManager {
                 }
             }
         } else {
-            // link is valid, download db
+            // Old link is valid, download db
             self.downloadDatabase(completion: completion)
         }
     }
@@ -277,10 +275,6 @@ class NetworkManager {
         
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: bodyParams, options: [])
-            let responseString = String(data: jsonData, encoding: .utf8)
-            
-            print("Body Parameters: \(responseString ?? "No response data")")
-            
             request.httpBody = jsonData
         } catch {
             print("Error serializing JSON: \(error)")
@@ -369,18 +363,15 @@ class NetworkManager {
                 print("Error: \(error)")
                 return
             }
-            
-            if let httpResponse = response as? HTTPURLResponse {
-                print("HTTP Status Code: \(httpResponse.statusCode)")
-            }
-            
+                        
             if let data = data {
                 do {
                     let responseString = String(data: data, encoding: .utf8)
                     print("Response: \(responseString ?? "No response data")")
-                    
+
                     if let jsonDict = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
-                       let updateDB = jsonDict["data"] as? [String: Any], let mappedCID = updateDB["mapped_cid"] {          print("DB update successful: \(mappedCID)")
+                       let updateDB = jsonDict["data"] as? [String: Any], let mappedCID = updateDB["mapped_cid"] {
+                        print("DB update successful: from \(oldCID) to \(mappedCID)")
                         self.refreshDatabase(completion: completion)
                     } else {
                         print("Failed to extract new CID from the response.")

@@ -97,6 +97,7 @@ extension ConfigDetailViewController: UITableViewDelegate, UITableViewDataSource
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         cell.selectionStyle = .none
+        cell.backgroundColor = .black
         
         if indexPath.row == 0 {
             // first cell, add new config
