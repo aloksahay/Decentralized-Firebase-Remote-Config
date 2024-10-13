@@ -32,24 +32,27 @@ class DashboardViewController: BaseViewController {
             // Project found
             
             var projectDescription = ""
-            var configDescription = "No saved configs"
+            var configDescription = ""
             
             projectButton.backgroundColor = themeGrayColor
             projectButton.setTitle("", for: .normal)
             projectButton.layer.borderColor = themeYellowColor.cgColor
             
-            projectDescription = "Project: " + "\(projectName)"
+            projectDescription = "\(projectName)"
             
             if let configs = NetworkManager.sharedManager.dataSource?.configurations, let latestConfig = configs.last {
                 print("Founds configurations: \(configs.count)")
                 
                 let createdAt = Utils.formatTimeStringFromTimestamp(latestConfig.configCreatedAt)
                 projectDescription.append("\nLast update: \(createdAt)")
-                configDescription = "(\(configs.count)) configurations found, latest: \(String(describing: latestConfig.apiVersion))"
+                configDescription = "Show (\(configs.count)) configurations >"
+                
+            } else { // no saved configs
+                configDescription = "No saved configs"
             }
             projectButton.setTitle(configDescription, for: .normal)
             dbStateTitleLabel.text = projectDescription
-            projectButton.titleLabel?.font = UIFont.systemFont(ofSize: 18)
+            projectButton.titleLabel?.font = UIFont.systemFont(ofSize: 16)
         } else {
             // Project doesnt exist
             dbStateTitleLabel.text = "Project not found. Click to create"
@@ -63,7 +66,7 @@ class DashboardViewController: BaseViewController {
         
         if let _ = NetworkManager.sharedManager.remoteDatabaseState?.name {
             // Project found, go detail page
-            
+            performSegue(withIdentifier: "showDetail", sender: nil)
             
         } else {
             // project doesnt exist
@@ -102,7 +105,7 @@ class DashboardViewController: BaseViewController {
                 self?.showAlert(message: error?.localizedDescription ?? "Unknown error")
             }
         }
-    }   
+    }
     
     func fetchDatabaseState() {
         
