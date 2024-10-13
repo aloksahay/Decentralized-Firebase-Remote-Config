@@ -40,8 +40,10 @@ class CreateNewConfigViewController: BaseViewController {
         }
         
         NetworkManager.sharedManager.uploadNewConfig(config: config) { [weak self] (success, error) in
-            if success {
-                self?.navigationController?.popViewController(animated: true)
+            if success {                
+                DispatchQueue.main.async {
+                    self?.navigationController?.popViewController(animated: true)
+                }
             } else {
                 self?.showAlert(message: error?.localizedDescription ?? "Unknown error")
             }
