@@ -20,8 +20,21 @@ struct AppConfig: Codable {
     var apiRootURL: String?
     var apiVersion: String?
     var configCreatedAt: Int?
-    var customButton: Bool?
+    var customButton: Bool = false
     var customFields: [[String: AnyCodable]]?
+    
+    func encodeToJSON() -> String? {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+        
+        do {
+            let jsonData = try encoder.encode(self)
+            return String(data: jsonData, encoding: .utf8)
+        } catch {
+            print("Error encoding AppConfig to JSON: \(error)")
+            return nil
+        }
+    }
 }
 
 struct AnyCodable: Codable {

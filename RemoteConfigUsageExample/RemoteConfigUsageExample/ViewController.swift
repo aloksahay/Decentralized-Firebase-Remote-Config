@@ -30,17 +30,20 @@ class ViewController: UIViewController {
             return
         }
         
-        var json = ""
-        
-        if let appVersion = config.appVersion {
-            json.append("App Version: " + appVersion)
+        if config.customButton {
+            // if custom button is on.
+            let json = config.encodeToJSON()
+            jsonLabel.text = json
+        } else {
+            var json = ""
+            if let appVersion = config.appVersion {
+                json.append("App Version: " + appVersion)
+            }
+            if let apiURL = config.apiRootURL,  let apiVersion = config.apiVersion {
+                json.append("\nEndpoint: " + apiURL + "/" + apiVersion)
+            }
+            jsonLabel.text = json
         }
-
-        if let apiURL = config.apiRootURL,  let apiVersion = config.apiVersion {
-            json.append("\nEndpoint: " + apiURL + "/" + apiVersion)
-        }
-        
-        jsonLabel.text = json
     }
 }
 
