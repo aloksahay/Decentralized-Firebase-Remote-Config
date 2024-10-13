@@ -9,14 +9,25 @@ import Foundation
 
 struct ConfigDatabase: Codable {
     var configurations: [AppConfig]
+    
+    mutating func addConfig(_ config: AppConfig) {
+        configurations.append(config)
+    }
+    
+   
 }
 
 struct AppConfig: Codable {
     var appVersion: String?
     var apiRootURL: String?
     var apiVersion: String?
+    var configCreatedAt: Int
     var customButton: Bool?
     var customFields: [[String: AnyCodable]]? // maybe the user needs some custom fields in the config
+    
+    init() {
+        self.configCreatedAt = Int(Date().timeIntervalSince1970) //save the moment when a new config is created
+    }
     
     mutating func addCustomField(key: String, value: Any) {
         let newField = [key: AnyCodable(value)]
@@ -30,7 +41,7 @@ struct AppConfig: Codable {
     mutating func removeCustomField(key: String) {
         customFields?.removeAll { $0.keys.contains(key) }
     }
-    
+        
     func encodeToJSON() -> String? {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted

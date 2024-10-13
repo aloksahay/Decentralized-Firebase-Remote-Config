@@ -15,21 +15,20 @@ class ViewController: UIViewController {
         fetchDatabaseState()
     }
     
+    @IBAction func postConfig(_ sender: Any) {
+        createNewConfig()
+    }
+    
     func fetchDatabaseState() {
         
         NetworkManager.sharedManager.fetchDatabaseState { [weak self] (success, error) in
-            
             if success == false {
-                DispatchQueue.main.async {
-                    self?.showAlert(message: error?.localizedDescription ?? "Unknown error")
-                }
+                self?.showAlert(message: error?.localizedDescription ?? "Unknown error")
                 return
             }
             
             if NetworkManager.sharedManager.remoteDatabaseState?.cid == nil {
-                DispatchQueue.main.async {
                     self?.showNoDBAlert()
-                }
             } else {
                 // DB found, fetch DB
                 self?.refreshData()
@@ -37,21 +36,39 @@ class ViewController: UIViewController {
         }
     }
     
+    
+    func createNewConfig() {
+        
+        var newConfig = AppConfig()
+        newConfig.appVersion = "1.0.5"
+        newConfig.apiRootURL = "https://api.example.com/v2"
+        newConfig.apiVersion = "2.0.55"
+        newConfig.customButton = true
+
+        NetworkManager.sharedManager.uploadNewConfig(config: newConfig) { [weak self] (success, error) in
+            
+            if success {
+                print("config added")
+            } else {
+                self?.showAlert(message: error?.localizedDescription ?? "Unknown error")
+            }
+        }
+    }
+    
     func refreshData() {
         
-        NetworkManager.sharedManager.refreshDatabase { (success, error) in
+        NetworkManager.sharedManager.refreshDatabase { [weak self] (success, error) in
             
-            print("DB updated")
-            
-            
+            if success {
+                print("DB updated")
+            } else {
+                self?.showAlert(message: error?.localizedDescription ?? "Unknown error")
+            }
         }
-        
     }
     
     func createNewDatabase() {
-        
-        NetworkManager.sharedManager.uploadDatabase { (success, error) in
-            
+        NetworkManager.sharedManager.uploadDatabase { [weak self] (success, error) in
             //            switch result {
             //            case .success(let receivedFileData):
             //                print("Uploaded successfully, received response:")
@@ -60,30 +77,31 @@ class ViewController: UIViewController {
             //                print("Failed to upload config: \(error)")
             //            }
         }
-        
     }
 }
 
 extension ViewController {
     
     func showAlert(message: String) {
-        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-        let cancelAction = UIAlertAction(title: "OK", style: .default)
-        alert.addAction(cancelAction)
-        self.present(alert, animated: true, completion: nil)
+        DispatchQueue.main.async {
+            let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+            let cancelAction = UIAlertAction(title: "OK", style: .default)
+            alert.addAction(cancelAction)
+            self.present(alert, animated: true, completion: nil)
+        }
     }
     
     public func showNoDBAlert() {
-        let alert = UIAlertController(title: "Config DB not found", message: "Do you want to create one??", preferredStyle: .alert)
-        
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
-        
-        let confirmAction = UIAlertAction(title: "Yes, Go Ahead", style: .default) { _ in
-            // create and upload an empty DB file
-            self.createNewDatabase()
+        DispatchQueue.main.async {
+            let alert = UIAlertController(title: "Config DB not found", message: "Do you want to create one??", preferredStyle: .alert)
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+            let confirmAction = UIAlertAction(title: "Yes, Go Ahead", style: .default) { _ in
+                // create and upload an empty DB file
+                self.createNewDatabase()
+            }
+            alert.addAction(cancelAction)
+            alert.addAction(confirmAction)
+            self.present(alert, animated: true, completion: nil)
         }
-        alert.addAction(cancelAction)
-        alert.addAction(confirmAction)
-        self.present(alert, animated: true, completion: nil)
     }
 }

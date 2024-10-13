@@ -11,10 +11,11 @@ class NetworkManager {
     
     static let sharedManager = NetworkManager()
     
-    static var pinataUploadEndpoint: String = "https://uploads.pinata.cloud/v3/files"
-    static var pinataFilesEndpoint: String = "https://api.pinata.cloud/v3/files"
-    static var pinataGatewayEndpoint: String = "https://cyan-genetic-barracuda-339.mypinata.cloud/files"
-    static let urlDuration = (60 * 60 * 24 * 7)  //duration of signed URL is 7 days
+    static let pinataUploadEndpoint: String = "https://uploads.pinata.cloud/v3/files"
+    static let pinataFilesEndpoint: String = "https://api.pinata.cloud/v3/files"
+    static let pinataGatewayEndpoint: String = "https://cyan-genetic-barracuda-339.mypinata.cloud/files"
+    static let remoteConfigName: String = "AppConfig"
+    static let urlDuration = (60 * 60 * 24 * 30)  //duration of signed URL is 30 days
     
     var remoteDatabaseState: ConfigFileData?
     var dataSource: ConfigDatabase?
@@ -28,63 +29,29 @@ class NetworkManager {
         return ProcessInfo.processInfo.environment["ConfigGroupID"] ?? "PINATA_GROUP_ID" // The group where you want to save your config files
     }
     
-    // part of dashboard client
+    /*
+     MARK: Future work:
+     
+     1. Better error handling across chained calls. If one fails then retry should only call the failed call, not the whole thing.
+     
+     2. Clean up the shared dataTask blocks, functions are getting too long and hard to read. Move all code inside blocks into block arguements somewhere else.
+     
+     */
     
     
+    // MARK: Append config
     
+    func uploadNewConfig(config: AppConfig, completion: @escaping (Bool, Error?) -> Void) {
+        
+        guard let _ = dataSource else {
+            return completion(false, nil)
+        }
+        
+        self.dataSource?.addConfig(config)
+        uploadDatabase(completion: completion)
+    }
     
-    //    func fetchConfigById(fileId: String, completion: @escaping (Result<AppConfig, Error>) -> Void) {
-    //
-    //        let fetchFileByName = NetworkManager.pinataGetFilesEndpoint + "/\(fileId)"
-    //
-    //        guard let url = URL(string: fetchFileByName) else {
-    //            print("Invalid URL.")
-    //
-    //            let error = NSError(
-    //                domain: "api.pinata.cloud",
-    //                code: 999,
-    //                userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]
-    //            )
-    //            completion(.failure(error))
-    //            return
-    //        }
-    //
-    //        var request = URLRequest(url: url)
-    //        request.httpMethod = "GET"
-    //        request.setValue("Bearer \(NetworkManager.bearerToken)", forHTTPHeaderField: "Authorization")
-    //
-    //        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-    //            if let error = error {
-    //                print("Error: \(error.localizedDescription)")
-    //                return
-    //            }
-    //
-    //            if let httpResponse = response as? HTTPURLResponse {
-    //                print("HTTP Status Code: \(httpResponse.statusCode)")
-    //            }
-    //
-    //            if let data = data {
-    //
-    //                do {
-    //                    let responseString = String(data: data, encoding: .utf8)
-    //                    print("Response: \(responseString ?? "No response data")")
-    //
-    //                    let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-    //
-    ////                    if let dataObject = json?["data"] as? [String: Any],
-    ////                       let filesArray = dataObject["files"] as? [[String: Any]] {
-    ////                        let filesData = try JSONSerialization.data(withJSONObject: filesArray, options: [])
-    ////                        let files = try JSONDecoder().decode([ConfigFileData].self, from: filesData)
-    ////                        completion(.success(files))
-    ////                    }
-    //
-    //                } catch {
-    //                    completion(.failure(error))
-    //                }
-    //            }
-    //        }
-    //        task.resume()
-    //    }
+    // MARK: Check DB state
     
     func fetchDatabaseState(completion: @escaping (Bool, Error?) -> Void) {
         
@@ -130,7 +97,7 @@ class NetworkManager {
                         let filesData = try JSONSerialization.data(withJSONObject: filesArray, options: [])
                         let files = try JSONDecoder().decode([ConfigFileData].self, from: filesData)
                         
-                        if let dbLocation = files.first(where: { $0.name == "AppConfig"}) {
+                        if let dbLocation = files.first(where: { $0.name == NetworkManager.remoteConfigName}) {
                             self.remoteDatabaseState = dbLocation
                         }
                         completion(true, nil)
@@ -144,6 +111,8 @@ class NetworkManager {
         }
         task.resume()
     }
+    
+    // MARK: Upload DB
     
     func uploadDatabase(completion: @escaping (Bool, Error?) -> Void) {
         
@@ -173,7 +142,7 @@ class NetworkManager {
             request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
             request.setValue("Bearer \(NetworkManager.bearerToken)", forHTTPHeaderField: "Authorization")
             
-            let body = Utils.createMultipartFileBody(fileData: jsonData, fileName: "AppConfig", groupId: NetworkManager.configGroupId, boundary: boundary)
+            let body = Utils.createMultipartFileBody(fileData: jsonData, fileName: NetworkManager.remoteConfigName, groupId: NetworkManager.configGroupId, boundary: boundary)
             request.httpBody = body
             
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
@@ -191,9 +160,17 @@ class NetworkManager {
                         let receivedConfig = try JSONDecoder().decode([String: ConfigFileData].self, from: data)
                         if let fileData = receivedConfig["data"] {
                             
-                            // saved location of DB
-                            self.remoteDatabaseState = fileData
-                            completion(true, nil)
+                            if self.remoteDatabaseState == nil {
+                                
+                                // DB is saved for the first time
+                                self.remoteDatabaseState = fileData
+                                completion(true, nil)
+                                
+                            } else if let oldCID = self.remoteDatabaseState?.cid, oldCID != fileData.cid {
+                                
+                                //DB is saved to new location, perform hot swap
+                                self.swapDatabase(oldCID: oldCID, newCID: fileData.cid, completion: completion)
+                            }
                         } else {
                             let error = NSError(
                                 domain: "api.pinata.cloud",
@@ -216,6 +193,8 @@ class NetworkManager {
         }
     }
     
+    // MARK: Download DB
+    
     func downloadDatabase(completion: @escaping (Bool, Error?) -> Void) {
         
         guard let endpoint = self.databaseURLEndpoint, let url = URL(string: endpoint) else {
@@ -226,36 +205,38 @@ class NetworkManager {
         let request = URLRequest(url: url)
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
-                if let error = error {
-                    print("Error occurred: \(error.localizedDescription)")
-                    completion(false, error)
-                    return
-                }
+            if let error = error {
+                print("Error occurred: \(error.localizedDescription)")
+                completion(false, error)
+                return
+            }
+            
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
                 
-                if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
-
-                    if let data = data {
-                        do {
-                            let responseString = String(data: data, encoding: .utf8)
-                            print("Response: \(responseString ?? "No response data")")
-                            
-                            let database = try JSONDecoder().decode(ConfigDatabase.self, from: data)
-                            self.dataSource = database //save DB for the rest of the session
-                            completion(true, nil)
-                            
-                        } catch {
-                            completion(false, error)
-                        }
-                    } else {
+                if let data = data {
+                    do {
+                        let responseString = String(data: data, encoding: .utf8)
+                        print("Response: \(responseString ?? "No response data")")
+                        
+                        let database = try JSONDecoder().decode(ConfigDatabase.self, from: data)
+                        self.dataSource = database //save DB for the rest of the session
+                        completion(true, nil)
+                        
+                    } catch {
                         completion(false, error)
                     }
                 } else {
                     completion(false, error)
                 }
+            } else {
+                completion(false, error)
             }
-            
-            task.resume()
+        }
+        
+        task.resume()
     }
+    
+    // MARK: Refresh DB
     
     func refreshDatabase(completion: @escaping (Bool, Error?) -> Void) {
         
@@ -274,6 +255,8 @@ class NetworkManager {
             self.downloadDatabase(completion: completion)
         }
     }
+    
+    // MARK: Get DB location URL
     
     func getDatabaseSignedURL(completion: @escaping (Bool, Error?) -> Void) {
         
@@ -344,5 +327,69 @@ class NetworkManager {
         task.resume()
     }
     
+    // MARK: Hot Swap DBs
     
+    func swapDatabase(oldCID: String, newCID: String, completion: @escaping (Bool, Error?) -> Void) {
+        
+        guard let requestUrl = URL(string: NetworkManager.pinataFilesEndpoint + "/swap/\(oldCID)") else {
+            print("Invalid URL.")
+            
+            let error = NSError(
+                domain: "api.pinata.cloud",
+                code: 999,
+                userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]
+            )
+            
+            completion(false,error)
+            return
+        }
+        
+        var request = URLRequest(url: requestUrl)
+        request.httpMethod = "PUT"
+        
+        request.setValue("Bearer \(NetworkManager.bearerToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let bodyParams: [String: Any] = [
+            "swap_cid": newCID
+        ]
+        
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: bodyParams, options: [])
+            request.httpBody = jsonData
+        } catch {
+            print("Error serializing JSON: \(error)")
+            return
+        }
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            
+            if let error = error {
+                print("Error: \(error)")
+                return
+            }
+            
+            if let httpResponse = response as? HTTPURLResponse {
+                print("HTTP Status Code: \(httpResponse.statusCode)")
+            }
+
+            if let data = data {
+                do {
+                    let responseString = String(data: data, encoding: .utf8)
+                    print("Response: \(responseString ?? "No response data")")
+                    
+                    if let jsonDict = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                       let updateDB = jsonDict["data"] as? [String: Any], let mappedCID = updateDB["mapped_cid"] {          print("DB update successful: \(mappedCID)")
+                        completion(true, nil)
+                    } else {
+                        print("Failed to extract new CID from the response.")
+                        completion(false, error)
+                    }
+                } catch {
+                    completion(false, error)
+                }
+            }
+        }
+        task.resume()
+    }
 }
