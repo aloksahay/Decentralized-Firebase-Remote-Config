@@ -12,7 +12,9 @@ class ConfigDetailViewController: BaseViewController {
     @IBOutlet weak var projectLabel: UILabel!
     @IBOutlet weak var configsLabel: UILabel!
     @IBOutlet weak var configLocation: UILabel!
+    
     @IBOutlet weak var tableview: UITableView!
+    var refreshControl = UIRefreshControl()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,6 +23,23 @@ class ConfigDetailViewController: BaseViewController {
         setupViews()
         tableview.delegate = self
         tableview.dataSource = self
+        setupRefreshControl()
+    }
+    
+    func setupRefreshControl() {
+        refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
+        self.tableview.refreshControl = refreshControl
+    }
+    
+    @objc func handleRefresh() {
+        // Simulate fetching new data (you would replace this with your actual data fetching logic)
+        
+        NetworkManager.sharedManager.refreshDatabase { [weak self] (success, error) in
+            print("Table view refreshed!")
+            self?.refreshTable()
+        }
+        
     }
     
     func refreshUI() {
@@ -28,6 +47,14 @@ class ConfigDetailViewController: BaseViewController {
             self.setupViews()
         }
     }
+    
+    func refreshTable() {
+        DispatchQueue.main.async {
+            self.refreshControl.endRefreshing()
+            self.tableview.reloadData()
+        }
+    }
+    
     
     func setupViews() {
         
@@ -89,7 +116,7 @@ extension ConfigDetailViewController: UITableViewDelegate, UITableViewDataSource
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-            
+        
         if indexPath.row == 0 {
             // first cell, add new config
             self.performSegue(withIdentifier: "createNewConfig", sender: nil)

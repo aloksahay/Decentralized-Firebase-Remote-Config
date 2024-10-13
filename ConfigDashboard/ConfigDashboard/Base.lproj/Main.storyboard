@@ -236,15 +236,28 @@
                             </switch>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JQv-tH-SWj">
                                 <rect key="frame" x="16" y="384" width="361" height="50"/>
-                                <color key="backgroundColor" red="0.74509803919999995" green="0.62745098040000002" blue="0.23137254900000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <color key="backgroundColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="fb3-sv-64n"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" name="HelveticaNeue-Medium" family="Helvetica Neue" pointSize="19"/>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="Add custom config"/>
+                                <connections>
+                                    <action selector="addCustomFieldsToConfig:" destination="BeX-rj-sah" eventType="touchUpInside" id="n7g-5Z-EMH"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZO3-pW-RlT">
+                                <rect key="frame" x="16" y="454" width="361" height="50"/>
+                                <color key="backgroundColor" red="0.74509803919999995" green="0.62745098040000002" blue="0.23137254900000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="6Ir-6g-UQO"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" name="HelveticaNeue-Medium" family="Helvetica Neue" pointSize="19"/>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <state key="normal" title="Save Config"/>
                                 <connections>
-                                    <action selector="saveNewConfig:" destination="BeX-rj-sah" eventType="touchUpInside" id="edu-56-gpZ"/>
+                                    <action selector="submitConfig:" destination="BeX-rj-sah" eventType="touchUpInside" id="82E-RI-GZo"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -260,10 +273,13 @@
                             <constraint firstItem="GbY-jL-dmy" firstAttribute="top" secondItem="41S-zl-Zcj" secondAttribute="bottom" constant="20" id="Pb3-xE-dhM"/>
                             <constraint firstItem="1R6-mh-VSw" firstAttribute="trailing" secondItem="GbY-jL-dmy" secondAttribute="trailing" id="QLb-pw-Mdr"/>
                             <constraint firstItem="JQv-tH-SWj" firstAttribute="top" secondItem="9XQ-NL-4nf" secondAttribute="bottom" constant="50" id="a40-Fb-PwN"/>
+                            <constraint firstItem="ZO3-pW-RlT" firstAttribute="trailing" secondItem="JQv-tH-SWj" secondAttribute="trailing" id="bB6-2P-xA4"/>
                             <constraint firstItem="GbY-jL-dmy" firstAttribute="trailing" secondItem="41S-zl-Zcj" secondAttribute="trailing" id="djq-Jd-qrr"/>
                             <constraint firstItem="9XQ-NL-4nf" firstAttribute="leading" secondItem="GbY-jL-dmy" secondAttribute="leading" id="h7o-pX-9UZ"/>
                             <constraint firstItem="bEB-nj-hxO" firstAttribute="top" secondItem="EDc-Hm-BBf" secondAttribute="top" constant="32" id="hfM-gR-raS"/>
                             <constraint firstItem="9XQ-NL-4nf" firstAttribute="top" secondItem="GbY-jL-dmy" secondAttribute="bottom" constant="36" id="l3L-gs-JlB"/>
+                            <constraint firstItem="ZO3-pW-RlT" firstAttribute="top" secondItem="JQv-tH-SWj" secondAttribute="bottom" constant="20" id="nzJ-v7-Nao"/>
+                            <constraint firstItem="ZO3-pW-RlT" firstAttribute="leading" secondItem="JQv-tH-SWj" secondAttribute="leading" id="ocy-kc-Pqa"/>
                             <constraint firstItem="bEB-nj-hxO" firstAttribute="centerX" secondItem="EDc-Hm-BBf" secondAttribute="centerX" id="rdn-mV-448"/>
                             <constraint firstItem="JQv-tH-SWj" firstAttribute="leading" secondItem="9XQ-NL-4nf" secondAttribute="leading" id="rek-Ry-ebB"/>
                             <constraint firstItem="41S-zl-Zcj" firstAttribute="top" secondItem="bEB-nj-hxO" secondAttribute="bottom" constant="20" id="yMt-Zi-u5J"/>
