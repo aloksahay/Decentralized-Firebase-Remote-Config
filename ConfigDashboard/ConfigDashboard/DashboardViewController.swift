@@ -44,8 +44,8 @@ class DashboardViewController: BaseViewController {
                 print("Founds configurations: \(configs.count)")
                 
                 let createdAt = Utils.formatTimeStringFromTimestamp(latestConfig.configCreatedAt)
-                projectDescription.append("\nLast update: \(createdAt)")
-                configDescription = "Show (\(configs.count)) configurations >"
+                projectDescription.append("\nLast updated: \(createdAt)")
+                configDescription = "Show \(configs.count) configuration(s) history"
                 
             } else { // no saved configs
                 configDescription = "No saved configs"
