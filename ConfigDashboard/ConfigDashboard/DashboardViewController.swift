@@ -41,7 +41,7 @@ class DashboardViewController: BaseViewController {
             projectDescription = "\(projectName)"
             
             if let configs = NetworkManager.sharedManager.dataSource?.configurations, let latestConfig = configs.last {
-                print("Founds configurations: \(configs.count)")
+                print("Found configurations: \(configs.count)")
                 
                 let createdAt = Utils.formatTimeStringFromTimestamp(latestConfig.configCreatedAt)
                 projectDescription.append("\nLast updated: \(createdAt)")

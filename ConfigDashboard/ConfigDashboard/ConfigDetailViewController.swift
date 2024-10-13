@@ -66,8 +66,8 @@ class ConfigDetailViewController: BaseViewController {
             projectLabel.text = projectName
         }
         
-        if let configs = NetworkManager.sharedManager.dataSource?.configurations, let latestConfig = configs.last {
-            print("Founds configurations: \(configs.count)")
+        if let configs = NetworkManager.sharedManager.dataSource?.configurations, let _ = configs.last {
+            print("Found configurations: \(configs.count)")
             configsLabel.text = "\(configs.count) Configs found"
         }
         
