@@ -12,7 +12,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        RemoteAppConfig.setupSharedInstance(withURL: "")
+        RemoteAppConfig.setupSharedInstance(withURL: "https://cyan-genetic-barracuda-339.mypinata.cloud/files/bafkreiemhccofg2plvftassurdzsvhufxavw4yu3dbpja75n7yzibzzmja?X-Algorithm=PINATA1&X-Date=1728869727699&X-Expires=7776000&X-Method=GET&X-Signature=014c9890de1d90479c79d10ded03f25002e268494e56256df97459712766a848")
         return true
     }
     

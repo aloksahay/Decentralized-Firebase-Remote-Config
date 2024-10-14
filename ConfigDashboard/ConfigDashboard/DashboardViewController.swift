@@ -38,6 +38,7 @@ class DashboardViewController: BaseViewController {
         NetworkManager.sharedManager.refreshDatabase { [weak self] (success, error) in
             print("Table view refreshed!")
             self?.refreshTable()
+            self?.refreshUI()
         }
         
     }

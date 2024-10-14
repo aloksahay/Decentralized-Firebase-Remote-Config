@@ -80,7 +80,7 @@ class NetworkManager {
                         let filesData = try JSONSerialization.data(withJSONObject: filesArray, options: [])
                         let files = try JSONDecoder().decode([ConfigFileData].self, from: filesData)
                         
-                        if let dbLocation = files.first {
+                        if let dbLocation = files.last {
                             self.remoteDatabaseState = dbLocation
                             self.refreshDatabase(completion: completion)
                         } else {
@@ -198,6 +198,11 @@ class NetworkManager {
                 print("Error occurred: \(error.localizedDescription)")
                 completion(false, error)
                 return
+            }
+            
+            if let dataChunk = data {
+                let responseString = String(data: dataChunk, encoding: .utf8)
+                print("Response: \(responseString ?? "No response data")")
             }
             
             if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {

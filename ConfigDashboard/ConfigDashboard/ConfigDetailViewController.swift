@@ -38,8 +38,6 @@ class ConfigDetailViewController: BaseViewController {
         }
         return nil
     }
-
-    
 }
 
 extension ConfigDetailViewController {

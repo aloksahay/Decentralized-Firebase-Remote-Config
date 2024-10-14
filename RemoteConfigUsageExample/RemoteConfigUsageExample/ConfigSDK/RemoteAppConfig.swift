@@ -150,7 +150,7 @@ class RemoteAppConfig {
 //                        print("Response: \(responseString ?? "No response data")")
                         
                         let database = try JSONDecoder().decode(ConfigDatabase.self, from: data)
-                        if let latestConfiguration = database.configurations.last {
+                        if let latestConfiguration = database.configurations.first {
                             self.configuration = latestConfiguration
                             completion(true, nil)
                         } else {
