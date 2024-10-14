@@ -8,10 +8,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Dashboard View Controller-->
+        <!--Home View Controller-->
         <scene sceneID="0L6-f9-20Y">
             <objects>
-                <viewController id="Ku1-lh-fxx" customClass="DashboardViewController" customModule="ConfigDashboard" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="Ku1-lh-fxx" customClass="HomeViewController" customModule="ConfigDashboard" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="MKC-k0-f7R">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -94,10 +94,10 @@
             </objects>
             <point key="canvasLocation" x="2034.3511450381679" y="-7.042253521126761"/>
         </scene>
-        <!--Config Detail View Controller-->
+        <!--Dashboard View Controller-->
         <scene sceneID="nQ9-Bi-oao">
             <objects>
-                <viewController id="PsV-Yo-wkC" customClass="ConfigDetailViewController" customModule="ConfigDashboard" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="PsV-Yo-wkC" customClass="DashboardViewController" customModule="ConfigDashboard" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="7Ty-fC-XoG">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -192,16 +192,50 @@
                         <outlet property="projectLabel" destination="rDd-NQ-vf8" id="we9-3t-Bym"/>
                         <outlet property="tableview" destination="jdm-W6-Dpd" id="qGZ-IQ-mM3"/>
                         <segue destination="BeX-rj-sah" kind="show" identifier="createNewConfig" id="id8-nY-OpQ"/>
+                        <segue destination="4Jj-OD-PWD" kind="show" identifier="showConfig" id="mWH-Jt-O1F"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="VfM-ZY-lk9" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3034" y="6"/>
+            <point key="canvasLocation" x="3283" y="267"/>
         </scene>
-        <!--Create New Config View Controller-->
+        <!--Config Detail View Controller-->
+        <scene sceneID="gVk-VH-fA0">
+            <objects>
+                <viewController id="4Jj-OD-PWD" customClass="ConfigDetailViewController" customModule="ConfigDashboard" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="zUU-xN-fDi">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0DO-Cf-wET">
+                                <rect key="frame" x="16" y="103" width="361" height="0.0"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="19"/>
+                                <color key="textColor" systemColor="systemGreenColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="JHR-qk-PyW"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="0DO-Cf-wET" firstAttribute="centerX" secondItem="JHR-qk-PyW" secondAttribute="centerX" id="Cgb-8O-PQu"/>
+                            <constraint firstItem="0DO-Cf-wET" firstAttribute="top" secondItem="JHR-qk-PyW" secondAttribute="top" id="G2r-rM-fPW"/>
+                            <constraint firstItem="0DO-Cf-wET" firstAttribute="leading" secondItem="JHR-qk-PyW" secondAttribute="leading" constant="16" id="Ugu-oP-7X3"/>
+                            <constraint firstItem="JHR-qk-PyW" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="0DO-Cf-wET" secondAttribute="bottom" constant="20" id="qcH-ZG-4x2"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="1qX-O7-j2h"/>
+                    <connections>
+                        <outlet property="jsonLabel" destination="0DO-Cf-wET" id="57V-nR-SLg"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="vk0-vG-Pa4" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4490.8396946564881" y="636.61971830985919"/>
+        </scene>
+        <!--New Config View Controller-->
         <scene sceneID="op0-nC-1YK">
             <objects>
-                <viewController id="BeX-rj-sah" customClass="CreateNewConfigViewController" customModule="ConfigDashboard" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BeX-rj-sah" customClass="NewConfigViewController" customModule="ConfigDashboard" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="eVc-en-dNH">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -297,7 +331,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="JaK-Vg-zJH" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4084.7328244274809" y="5.6338028169014089"/>
+            <point key="canvasLocation" x="4543" y="-118"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="SFO-SN-s1p">
@@ -323,6 +357,9 @@
         <image name="document.on.document.fill" catalog="system" width="112" height="128"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemGreenColor">
+            <color red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

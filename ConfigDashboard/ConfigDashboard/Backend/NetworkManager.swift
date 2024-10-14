@@ -189,6 +189,8 @@ class NetworkManager {
             return
         }
         
+        print("🤖Fetch data from: " + endpoint)
+        
         let request = URLRequest(url: url)
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in

@@ -1,13 +1,13 @@
 //
-//  CreateNewConfigViewController.swift
-//  ConfigDashboard
+//  NewConfigViewController.swift
+//  NewConfigViewController
 //
 //  Created by Alok Sahay on 13.10.2024.
 //
 
 import UIKit
 
-class CreateNewConfigViewController: BaseViewController {
+class NewConfigViewController: BaseViewController {
     
     @IBOutlet weak var appVersionTextField: UITextField!
     @IBOutlet weak var apiRootURLTextField: UITextField!

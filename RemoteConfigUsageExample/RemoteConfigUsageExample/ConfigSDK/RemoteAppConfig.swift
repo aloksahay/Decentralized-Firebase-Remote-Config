@@ -89,6 +89,9 @@ class RemoteAppConfig {
     
     private init(configURL: String) {
         self.configURL = configURL
+        
+        
+        
         self.fetchConfigTimerTriggered()
         self.startPeriodicFetch()
     }

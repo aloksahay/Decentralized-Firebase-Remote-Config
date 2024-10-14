@@ -27,6 +27,7 @@ class ViewController: UIViewController {
         jsonLabel.text = ""
         
         guard let config = RemoteAppConfig.shared.configuration else {
+            jsonLabel.text = "Invalid config"
             return
         }
         

@@ -11,9 +11,8 @@ struct ConfigDatabase: Codable {
     var configurations: [AppConfig]
     
     mutating func addConfig(_ config: AppConfig) {
-        configurations.append(config)
+        configurations.insert(config, at: 0)
     }
-    
 }
 
 struct AppConfig: Codable {
